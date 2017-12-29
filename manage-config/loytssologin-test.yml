@@ -1,0 +1,55 @@
+server:
+  port: 8090
+  tomcat:
+    uri-encoding: UTF-8
+spring:
+  devtools:
+    restart:
+      enabled: false
+  datasource:
+      url: jdbc:mysql://localhost:3306/retail2?characterEncoding=utf8
+      username: root
+      password: root
+  jpa:
+    database: MYSQL
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+#      naming-strategy:  org.hibernate.cfg.ImprovedNamingStrategy
+      naming: 
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5Dialect
+  cloud: 
+    stream: 
+      bindings: 
+        input: 
+          group: loyt_crm_group
+          destination: dev_sync_trade_change
+          content-type: text/plain
+          consumer: 
+            partitioned: false
+            maxAttempts: 1  #重试次数
+        output: 
+          group: loyt_crm_group
+          destination: dev_sync_trade_change
+          content-type: text/plain
+      kafka: 
+        binder: 
+          brokers: 172.16.30.13:9092,172.16.30.135:9092,172.16.30.136:9092
+          zk-nodes: testzk1.shishike.com:2181,testzk2.shishike.com:2181,testzk3.shishike.com:2181
+          autoCreateTopics: false
+          autoAddPartitions: false
+          offsetUpdateTimeWindow: 1000
+          offsetUpdateCount: 0
+        bindings: 
+          input: 
+            consumer: 
+              autoCommitOffset: false
+      instanceCount: 2
+      instanceIndex: 0
+
+server.session.cookie.name: SESSIONID
+server.session.cookie.max-age: 1800
+server.session.timeout: 1800
